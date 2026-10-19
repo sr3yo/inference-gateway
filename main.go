@@ -12,7 +12,7 @@ type Sentence struct {
 }
 
 type Vec struct {
-	Numbers []float32 `json: "scores"`
+	Numbers []float32 `json:"embedding"`
 }
 
 //handleEmbed receives an embed request and replies with the corresponding vector if valid
@@ -34,15 +34,15 @@ func handleEmbed(w http.ResponseWriter, r *http.Request){
 		http.Error(w, "bad json", http.StatusBadRequest)
 		return
 	}
-	
-	var resp Vec
-	resp.Numbers = []float32{0.1, 0.2, 0.3}
-
-	
 
 	log.Println(req.Message)
 
-
+	//example vector encoding as JSON and written to response
+	var resp Vec
+	resp.Numbers = []float32{0.1, 0.2, 0.3}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+	
 
 }
 
