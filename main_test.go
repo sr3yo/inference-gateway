@@ -31,5 +31,16 @@ func TestBrokenMessage(t *testing.T) {
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("expected status 400, got %d", w.Code)
 	}
+}
 
+// invalid message test
+func TestValidMessage(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/embed", nil)
+	w := httptest.NewRecorder()
+
+	handleEmbed(w, req)
+
+	if w.Code != http.StatusMethodNotAllowed {
+		t.Errorf("expected status 400, got %d", w.Code)
+	}
 }
