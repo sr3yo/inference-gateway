@@ -12,3 +12,5 @@ def embed():
     vectors = model.encode(texts)
     return jsonify({"embeddings": vectors.tolist()})
 
+if __name__ == "__main__":
+    app.run(port=8000)
