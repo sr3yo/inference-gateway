@@ -33,14 +33,28 @@ func TestBrokenMessage(t *testing.T) {
 	}
 }
 
-// invalid message test
-func TestValidMessage(t *testing.T) {
+// wrong method test
+func TestWrongMethod(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/embed", nil)
 	w := httptest.NewRecorder()
 
 	handleEmbed(w, req)
 
 	if w.Code != http.StatusMethodNotAllowed {
-		t.Errorf("expected status 400, got %d", w.Code)
+		t.Errorf("expected status 405, got %d", w.Code)
+	}
+}
+
+// valid message test
+func TestValidMessage(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/embed", strings.NewReader(`{"text": "hello"}`))
+	w := httptest.NewRecorder()
+
+	handleEmbed(w, req)
+	if w.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", w.Code)
+	}
+	if w.Body.String() == "" {
+		t.Error("expected a body response but got none")
 	}
 }
