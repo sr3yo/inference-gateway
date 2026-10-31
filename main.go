@@ -43,6 +43,7 @@ func handleEmbed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//handles empty message
 	if req.Message == "" {
 		http.Error(w, "Empty message", http.StatusBadRequest)
 		return
@@ -54,6 +55,19 @@ func handleEmbed(w http.ResponseWriter, r *http.Request) {
 	body, err := json.Marshal(pyReq)
 	if err != nil {
 		http.Error(w, "could not encode worker request",
+			http.StatusInternalServerError)
+		return
+	}
+
+	//creates a POST request containing the JSON body for the Python worker
+	workerReq, err := http.NewRequestWithContext(
+		r.Context(),
+		http.MethodPost,
+		"http://127.0.0.1:8000/embed",
+		bytes.NewReader(body),
+	)
+	if err != nil {
+		http.Error(w, "could not create worker request",
 			http.StatusInternalServerError)
 		return
 	}
