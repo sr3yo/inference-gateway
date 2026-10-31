@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -12,6 +13,14 @@ type Sentence struct {
 
 type Vec struct {
 	Numbers []float32 `json:"embedding"`
+}
+
+type Batch struct {
+	Words []string `json:"texts"`
+}
+
+type Embeds struct {
+	Vecs [][]float32 `json:"embeddings"`
 }
 
 // handleEmbed receives an embed request and replies with the corresponding vector if valid
@@ -39,7 +48,15 @@ func handleEmbed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(req.Message)
+	var pyReq Batch
+	pyReq.Words = []string{req.Message}
+
+	body, err := json.Marshal(pyReq)
+	if err != nil {
+		http.Error(w, "could not encode worker request",
+			http.StatusInternalServerError)
+		return
+	}
 
 	//example vector encoding as JSON and written to response
 	var resp Vec
