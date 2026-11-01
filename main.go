@@ -85,9 +85,27 @@ func handleEmbed(w http.ResponseWriter, r *http.Request) {
 	}
 	defer workerResp.Body.Close()
 
-	//example vector encoding as JSON and written to response
-	var resp Vec
-	resp.Numbers = []float32{0.1, 0.2, 0.3}
+	//checks that Python returned a successful HTTP status
+	if workerResp.StatusCode != http.StatusOK {
+		http.Error(w, "worker failed", http.StatusBadGateway)
+		return
+	}
+
+	//decodes Python's JSON into a Go Struct
+	var result Embeds
+	if err := json.NewDecoder(workerResp.Body).Decode(&result); err != nil {
+		http.Error(w, "invalid worker response", http.StatusBadGateway)
+		return
+	}
+
+	//checks that Python returned one vector containing 384 numbers
+	if len(result.Vecs) != 1 || len(result.Vecs[0]) != 384 {
+		http.Error(w, "unexpected embedding dimensions", http.StatusBadGateway)
+		return
+	}
+
+	//return the real vector from Python
+	resp := Vec{Numbers: result.Vecs[0]}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 
