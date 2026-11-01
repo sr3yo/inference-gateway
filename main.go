@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 )
 
 type Sentence struct {
@@ -71,6 +72,18 @@ func handleEmbed(w http.ResponseWriter, r *http.Request) {
 			http.StatusInternalServerError)
 		return
 	}
+
+	//instantiates an HTTP client and sends the POST request to the Python worker
+	workerReq.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: 30 * time.Second}
+
+	workerResp, err := client.Do(workerReq)
+	if err != nil {
+		http.Error(w, "worker unavailable", http.StatusBadGateway)
+		return
+	}
+	defer workerResp.Body.Close()
 
 	//example vector encoding as JSON and written to response
 	var resp Vec
