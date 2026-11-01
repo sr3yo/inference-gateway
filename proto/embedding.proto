@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package embedding;
+
+option go_package = "inference-gateway/proto;embeddingpb";
+
+service EmbeddingService {
+  rpc Embed(EmbedRequest) returns (EmbedResponse);
+}
+
+message EmbedRequest {
+  repeated string texts = 1;
+}
+
+message Embedding {
+  repeated float values = 1;
+}
+
+message EmbedResponse {
+  repeated Embedding embeddings = 1;
+}
